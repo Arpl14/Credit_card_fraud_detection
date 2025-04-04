@@ -14,7 +14,7 @@ df = load_data()
 # ----------------- Load Models ------------------
 @st.cache_resource
 def load_models():
-    iso_model = joblib.load("iso_forest_clean.pkl")
+    iso_model = joblib.load("iso_forest.pkl")
     xgb_model = joblib.load("xgb_model_clean.pkl")
     return iso_model, xgb_model
 

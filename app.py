@@ -109,11 +109,11 @@ styled_df = styled_df.concat(
 st.dataframe(styled_df)
 
 # ----------------- SHAP ------------------
-# ----------------- SHAP Feature Importance ------------------
+
 st.subheader("Feature Contribution: SHAP Explanations")
 
-if "sample" in locals() and st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Current Sample"):
-    shap_sample = sample.to_frame().T
+if st.session_state.sample is not None and st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Current Sample"):
+    shap_sample = st.session_state.sample.to_frame().T
 
     # SHAP for XGBoost
     xgb_explainer = shap.TreeExplainer(xgb_model)
@@ -129,7 +129,6 @@ if "sample" in locals() and st.checkbox("Show SHapley Additive exPlanations (SHA
 
     with col1:
         st.markdown("<h5 style='color:green;'>XGBoost</h5>", unsafe_allow_html=True)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
         shap.plots._waterfall.waterfall_legacy(
             xgb_explainer.expected_value,
             xgb_shap_values[0],
@@ -149,10 +148,6 @@ if "sample" in locals() and st.checkbox("Show SHapley Additive exPlanations (SHA
         st.pyplot()
 else:
     st.info("Click 'Show Random Sample' first to activate SHAP explanations.")
-
-
-
-
 
 
 

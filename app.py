@@ -3,54 +3,44 @@ import pandas as pd
 import random
 import joblib
 
-# Load models
+# --- Load cleaned models ---
 @st.cache_resource
 def load_models():
     iso_model = joblib.load("iso_forest.pkl")
-    xgb_model = joblib.load("xgb_model.pkl")
+    xgb_model = joblib.load("xgb_model_clean.pkl")
     return iso_model, xgb_model
 
-# Load data
+# --- Load test dataset ---
 @st.cache_data
 def load_data():
     return pd.read_csv("sample_test.csv")
 
-df = load_data()
 iso_model, xgb_model = load_models()
+df = load_data()
 
-st.title("Credit Card Fraud Detection - Sample Viewer with Predictions")
+# --- App UI ---
+st.title("💳 Credit Card Fraud Detection - Sample Viewer with Predictions")
 
 if df.empty:
-    st.error("Dataset is empty or not loaded.")
+    st.error("Dataset could not be loaded or is empty.")
 else:
-    st.write(f"📊 Dataset has {len(df)} rows")
+    st.success(f"✅ Loaded dataset with {len(df)} rows")
 
-    if st.button("Show Random Sample with Prediction"):
+    if st.button("🎲 Show Random Sample"):
         idx = random.randint(0, len(df) - 1)
         sample = df.iloc[idx]
-        
-        st.subheader(f"🔍 Sample #{idx} (Actual: {'Fraud' if sample['Class'] == 1 else 'Non-Fraud'})")
+        st.subheader(f"🔍 Sample #{idx} (Actual Class: {'Fraud' if sample['Class'] == 1 else 'Non-Fraud'})")
         st.write(sample)
 
-        # Drop the label before prediction
-        sample_features = sample.drop("Class").values.reshape(1, -1)
+        input_features = sample.drop("Class").values.reshape(1, -1)
 
-        # Predict using Isolation Forest (-1 = anomaly, 1 = normal)
-        iso_pred = iso_model.predict(sample_features)[0]
-        iso_label = "Fraud" if iso_pred == -1 else "Non-Fraud"
+        # --- Predictions ---
+        iso_pred = iso_model.predict(input_features)[0]
+        xgb_pred = xgb_model.predict(input_features)[0]
 
-        # Predict using XGBoost (0 = non-fraud, 1 = fraud)
-        xgb_pred = xgb_model.predict(sample_features)[0]
-        xgb_label = "Fraud" if xgb_pred == 1 else "Non-Fraud"
-
-        st.markdown("### 🤖 Model Predictions")
-        st.write(f"**Isolation Forest:** {iso_label}")
-        st.write(f"**XGBoost:** {xgb_label}")
-
-
-
-
-
+        st.markdown("### 🔎 Model Predictions")
+        st.write(f"🧪 Isolation Forest Prediction: {'Fraud' if iso_pred == 1 else 'Non-Fraud'}")
+        st.write(f"🚀 XGBoost Prediction: {'Fraud' if xgb_pred == 1 else 'Non-Fraud'}")
 
 
 

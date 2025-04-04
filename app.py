@@ -3,6 +3,7 @@ import pandas as pd
 import random
 import joblib
 from sklearn.metrics import classification_report
+import numpy as np  
 
 # ----------------- Load Data ------------------
 @st.cache_data
@@ -73,16 +74,28 @@ We compared the performance of **XGBoost (AutoML)** with **Isolation Forest** on
 The following table highlights key evaluation metrics focused on fraud detection capability.
 """)
 
+
 comparison_df = pd.DataFrame({
     "Metric": ["Accuracy", "Recall", "MCC", "Kappa", "ROC AUC"],
-    "Isolation Forest": [0.9978, 0.5147, 0.4367, 0.4310, "N/A"],
+    "Isolation Forest": [0.9978, 0.5147, 0.4367, 0.4310, np.nan],
     "XGBoost (AutoML)": [0.9999, 0.9411, 0.9553, 0.9552, 0.99]
 })
 
 comparison_df.set_index("Metric", inplace=True)
-st.dataframe(comparison_df.style.format(precision=4).highlight_max(axis=1, color="#d4edda"))
 
+# Highlight max only for numeric rows
+numeric_metrics_df = comparison_df.drop(index="ROC AUC", errors="ignore")
 
+styled_df = numeric_metrics_df.style \
+    .format(precision=4) \
+    .highlight_max(axis=1, color="#d4edda")
+
+# Append ROC AUC row manually
+styled_df = styled_df.concat(
+    comparison_df.loc[["ROC AUC"]].style.format(na_rep="N/A")
+)
+
+st.dataframe(styled_df)
 
 
 

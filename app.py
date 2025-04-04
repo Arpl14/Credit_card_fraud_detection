@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 import random
 
-# Load your test dataset
+# Load test dataset
 @st.cache_data
 def load_data():
-    # Replace with your actual test set file path
-    return pd.read_csv("sample_test.csv")
+    return pd.read_csv("fraud_test_sample.csv")  # your actual CSV name
 
 df = load_data()
 
@@ -15,10 +14,12 @@ st.title("Credit Card Fraud Detection - Sample Viewer")
 if df.empty:
     st.error("Dataset is empty or not loaded.")
 else:
+    st.write(f"📊 Dataset has {len(df)} rows")
+
     # Button to pick a random sample
     if st.button("Show Random Sample"):
         idx = random.randint(0, len(df) - 1)
-        st.subheader(f"Sample #{idx}")
+        st.subheader(f"🔍 Sample #{idx} (Class: {'Fraud' if df.iloc[idx]['Class'] == 1 else 'Non-Fraud'})")
         st.write(df.iloc[idx])
 
 

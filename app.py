@@ -5,7 +5,7 @@ import random
 # Load test dataset
 @st.cache_data
 def load_data():
-    return pd.read_csv("fraud_test_sample.csv")  # your actual CSV name
+    return pd.read_csv("sample_test.csv")  # your actual CSV name
 
 df = load_data()
 

@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report
 # ----------------- Load Data ------------------
 @st.cache_data
 def load_data():
-    return pd.read_csv("sample_test.csv")  # Make sure this exists in your repo
+    return pd.read_csv("sample_test.csv")  # Ensure this file is uploaded
 
 df = load_data()
 
@@ -20,59 +20,62 @@ def load_models():
 
 iso_model, xgb_model = load_models()
 
-# ----------------- App Title & Descriptions ------------------
-st.title("💳 Credit Card Fraud Detection")
+# ----------------- Title & Description ------------------
+st.title("Credit Card Fraud Detection")
 
 st.markdown("""
-### 📝 Project Overview
-This app demonstrates a credit card fraud detection system using two machine learning models:
-- **Isolation Forest** for unsupervised anomaly detection
-- **XGBoost** for supervised classification
+### Project Overview
+This app predicts the likelihood of fraudulent transactions using two models:
+- **Isolation Forest** (unsupervised anomaly detection)
+- **XGBoost** (supervised classification)
 
-### 📂 Dataset
-The dataset includes anonymized transaction features and a target variable `Class`, where:
-- `1` = Fraudulent
-- `0` = Non-Fraudulent
+### Dataset Information
+The dataset contains anonymized credit card transaction features (`V1` to `V28`, `Time`, `Amount`), and a binary label `Class`:
+- `Class = 0`: Non-Fraud
+- `Class = 1`: Fraud
+
+We use a sample of **992 records**, evenly balanced with **50% fraudulent** and **50% non-fraudulent** transactions to provide balanced prediction evaluation.
 """)
 
-# ----------------- Random Sample ------------------
+# ----------------- Random Sample & Prediction ------------------
 if df.empty:
     st.error("Dataset is empty or not loaded.")
 else:
-    st.write(f"✅ Dataset has **{len(df)}** samples.")
+    st.write(f"Dataset has **{len(df)}** samples.")
 
-    if st.button("🎲 Show Random Sample"):
+    if st.button("Show Random Sample"):
         idx = random.randint(0, len(df) - 1)
         sample = df.drop(columns=["Class"]).iloc[idx]
         true_class = df.iloc[idx]["Class"]
 
-        st.subheader(f"🔍 Sample #{idx}")
+        st.subheader(f"Sample #{idx} - Actual Class: {'Fraud' if true_class == 1 else 'Non-Fraud'}")
         st.write(sample)
 
-        # ----------------- Model Predictions ------------------
-        st.subheader("🔮 Model Predictions")
+        # Model Predictions
+        st.markdown("#### Model Predictions")
         iso_pred = iso_model.predict([sample])[0]
         xgb_pred = xgb_model.predict([sample])[0]
 
         col1, col2 = st.columns(2)
         with col1:
-            st.metric("Isolation Forest", "Fraud" if iso_pred == 1 else "Non-Fraud")
-        with col2:
-            st.metric("XGBoost", "Fraud" if xgb_pred == 1 else "Non-Fraud")
+            st.markdown("<h5 style='color:orange;'>Isolation Forest</h5>", unsafe_allow_html=True)
+            st.metric("Prediction", "Fraud" if iso_pred == -1 else "Non-Fraud")
 
-# ----------------- Model Comparison Table ------------------
-st.subheader("📊 Model Performance Comparison")
+        with col2:
+            st.markdown("<h5 style='color:green;'>XGBoost</h5>", unsafe_allow_html=True)
+            st.metric("Prediction", "Fraud" if xgb_pred == 1 else "Non-Fraud")
+
+# ----------------- Model Metrics Comparison ------------------
+st.subheader("Model Performance Metrics (on full sample)")
 
 @st.cache_data
 def compute_metrics():
     y_true = df["Class"]
     X = df.drop(columns=["Class"])
 
-    iso_preds = iso_model.predict(X)
+    # Isolation Forest: -1 = anomaly (fraud)
+    iso_preds = [1 if p == -1 else 0 for p in iso_model.predict(X)]
     xgb_preds = xgb_model.predict(X)
-
-    # For IsolationForest: anomaly = -1 → fraud (1), normal = 1 → non-fraud (0)
-    iso_preds = [1 if p == -1 else 0 for p in iso_preds]
 
     iso_report = classification_report(y_true, iso_preds, output_dict=True, zero_division=0)
     xgb_report = classification_report(y_true, xgb_preds, output_dict=True, zero_division=0)
@@ -88,8 +91,16 @@ def compute_metrics():
     return metrics.round(3)
 
 metrics_df = compute_metrics()
-st.dataframe(metrics_df)
 
+# Color format for model names
+def highlight_model(s):
+    if s == "Isolation Forest":
+        return "color: orange"
+    elif s == "XGBoost":
+        return "color: green"
+    return ""
+
+st.dataframe(metrics_df.style.applymap(highlight_model, subset=["Model"]))
 
 
 

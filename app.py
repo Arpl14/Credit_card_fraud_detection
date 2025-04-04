@@ -108,10 +108,36 @@ styled_df = styled_df.concat(
 
 st.dataframe(styled_df)
 
+
+#--------------SHAP---------------------
+
+
+
 import shap
 import matplotlib.pyplot as plt
 
 st.subheader("Feature Contribution: SHAP Explanations")
+st.subheader("SHAP Explanation Overview")
+
+st.markdown("""
+**SHAP (SHapley Additive exPlanations)** is a method to explain individual predictions by attributing feature importance.
+
+#### 🔍 What the SHAP Waterfall Graphs Show:
+- Each graph shows how the model made its prediction for the selected transaction.
+- The **left side** of the plot is the **expected value** (baseline prediction across the dataset).
+- The **right side** is the **final model prediction** for the sample.
+- Features are shown from top to bottom in **order of impact** on the prediction.
+- Each bar represents the **contribution of a feature**:
+  - **Positive contribution** moves prediction towards *fraud*.
+  - **Negative contribution** moves prediction towards *non-fraud*.
+- The value next to each feature (e.g., `+1.5`, `-0.4`) is the **SHAP value** — how much that feature influenced the result.
+- Red and blue bars represent the **direction and magnitude** of feature impact for each model.
+
+#### 🧠 Why SHAP is Important:
+- Helps you **interpret the decision logic** behind each prediction.
+- Adds **transparency** to complex ML models (like XGBoost or Isolation Forest).
+- Useful for **audits, debugging, and building user trust** in ML predictions.
+""")
 
 if "sample" not in st.session_state:
     st.info("Click 'Show Random Sample' first to activate SHAP explanations.")

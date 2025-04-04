@@ -2,49 +2,93 @@ import streamlit as st
 import pandas as pd
 import random
 import joblib
+from sklearn.metrics import classification_report
 
-# --- Load cleaned models ---
+# ----------------- Load Data ------------------
+@st.cache_data
+def load_data():
+    return pd.read_csv("sample_test.csv")  # Make sure this exists in your repo
+
+df = load_data()
+
+# ----------------- Load Models ------------------
 @st.cache_resource
 def load_models():
-    iso_model = joblib.load("iso_forest.pkl")
+    iso_model = joblib.load("iso_forest_clean.pkl")
     xgb_model = joblib.load("xgb_model_clean.pkl")
     return iso_model, xgb_model
 
-# --- Load test dataset ---
-@st.cache_data
-def load_data():
-    return pd.read_csv("sample_test.csv")
-
 iso_model, xgb_model = load_models()
-df = load_data()
 
-# --- App UI ---
-st.title("💳 Credit Card Fraud Detection - Sample Viewer with Predictions")
+# ----------------- App Title & Descriptions ------------------
+st.title("💳 Credit Card Fraud Detection")
 
+st.markdown("""
+### 📝 Project Overview
+This app demonstrates a credit card fraud detection system using two machine learning models:
+- **Isolation Forest** for unsupervised anomaly detection
+- **XGBoost** for supervised classification
+
+### 📂 Dataset
+The dataset includes anonymized transaction features and a target variable `Class`, where:
+- `1` = Fraudulent
+- `0` = Non-Fraudulent
+""")
+
+# ----------------- Random Sample ------------------
 if df.empty:
-    st.error("Dataset could not be loaded or is empty.")
+    st.error("Dataset is empty or not loaded.")
 else:
-    st.success(f"✅ Loaded dataset with {len(df)} rows")
+    st.write(f"✅ Dataset has **{len(df)}** samples.")
 
     if st.button("🎲 Show Random Sample"):
         idx = random.randint(0, len(df) - 1)
-        sample = df.iloc[idx]
-        st.subheader(f"🔍 Sample #{idx} (Actual Class: {'Fraud' if sample['Class'] == 1 else 'Non-Fraud'})")
+        sample = df.drop(columns=["Class"]).iloc[idx]
+        true_class = df.iloc[idx]["Class"]
+
+        st.subheader(f"🔍 Sample #{idx}")
         st.write(sample)
 
-        input_features = sample.drop("Class").values.reshape(1, -1)
+        # ----------------- Model Predictions ------------------
+        st.subheader("🔮 Model Predictions")
+        iso_pred = iso_model.predict([sample])[0]
+        xgb_pred = xgb_model.predict([sample])[0]
 
-        # --- Predictions ---
-        iso_pred = iso_model.predict(input_features)[0]
-        xgb_pred = xgb_model.predict(input_features)[0]
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Isolation Forest", "Fraud" if iso_pred == 1 else "Non-Fraud")
+        with col2:
+            st.metric("XGBoost", "Fraud" if xgb_pred == 1 else "Non-Fraud")
 
-        st.markdown("### 🔎 Model Predictions")
-        st.write(f"🧪 Isolation Forest Prediction: {'Fraud' if iso_pred == 1 else 'Non-Fraud'}")
-        st.write(f"🚀 XGBoost Prediction: {'Fraud' if xgb_pred == 1 else 'Non-Fraud'}")
+# ----------------- Model Comparison Table ------------------
+st.subheader("📊 Model Performance Comparison")
 
+@st.cache_data
+def compute_metrics():
+    y_true = df["Class"]
+    X = df.drop(columns=["Class"])
 
+    iso_preds = iso_model.predict(X)
+    xgb_preds = xgb_model.predict(X)
 
+    # For IsolationForest: anomaly = -1 → fraud (1), normal = 1 → non-fraud (0)
+    iso_preds = [1 if p == -1 else 0 for p in iso_preds]
 
+    iso_report = classification_report(y_true, iso_preds, output_dict=True, zero_division=0)
+    xgb_report = classification_report(y_true, xgb_preds, output_dict=True, zero_division=0)
+
+    metrics = pd.DataFrame({
+        "Model": ["Isolation Forest", "XGBoost"],
+        "Accuracy": [iso_report["accuracy"], xgb_report["accuracy"]],
+        "Precision (Fraud)": [iso_report["1"]["precision"], xgb_report["1"]["precision"]],
+        "Recall (Fraud)": [iso_report["1"]["recall"], xgb_report["1"]["recall"]],
+        "F1 Score (Fraud)": [iso_report["1"]["f1-score"], xgb_report["1"]["f1-score"]],
+    })
+
+    return metrics.round(3)
+
+metrics_df = compute_metrics()
+st.dataframe(metrics_df)
 
 
 

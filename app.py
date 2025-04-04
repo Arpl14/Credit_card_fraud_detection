@@ -41,17 +41,26 @@ We use a sample of **992 records**, evenly balanced with **50% fraudulent** and 
 """)
 
 # ----------------- Random Sample & Prediction ------------------
+# ----------------- Random Sample & Prediction ------------------
 if df.empty:
     st.error("Dataset is empty or not loaded.")
 else:
     st.write(f"Dataset has **{len(df)}** samples.")
 
+    if "sample" not in st.session_state:
+        st.session_state.sample = None
+        st.session_state.true_class = None
+
     if st.button("Show Random Sample"):
         idx = random.randint(0, len(df) - 1)
-        sample = df.drop(columns=["Class"]).iloc[idx]
-        true_class = df.iloc[idx]["Class"]
+        st.session_state.sample = df.drop(columns=["Class"]).iloc[idx]
+        st.session_state.true_class = df.iloc[idx]["Class"]
 
-        st.subheader(f"Sample #{idx} - Actual Class: {'Fraud' if true_class == 1 else 'Non-Fraud'}")
+    if st.session_state.sample is not None:
+        sample = st.session_state.sample
+        true_class = st.session_state.true_class
+
+        st.subheader(f"Sample - Actual Class: {'Fraud' if true_class == 1 else 'Non-Fraud'}")
         st.write(sample)
 
         # Model Predictions

@@ -64,7 +64,6 @@ else:
         with col2:
             st.markdown("<h5 style='color:green;'>XGBoost</h5>", unsafe_allow_html=True)
             st.metric("Prediction", "Fraud" if xgb_pred == 1 else "Non-Fraud")
-
 # ----------------- Model Metrics Comparison (Hardcoded) ------------------
 st.subheader("Model Performance Comparison")
 
@@ -82,8 +81,6 @@ comparison_df = pd.DataFrame({
 # Format
 comparison_df.set_index("Metric", inplace=True)
 st.dataframe(comparison_df.style.format(precision=4).highlight_max(axis=1, color="#d4edda"))
-
-metrics_df = compute_metrics()
 
 # Color format for model names
 def highlight_model(s):

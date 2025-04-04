@@ -108,47 +108,51 @@ styled_df = styled_df.concat(
 
 st.dataframe(styled_df)
 
-# ----------------- SHAP ------------------
+import shap
+import matplotlib.pyplot as plt
 
 st.subheader("Feature Contribution: SHAP Explanations")
 
-if st.session_state.sample is not None and st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Current Sample"):
-    shap_sample = st.session_state.sample.to_frame().T
-
-    # SHAP for XGBoost
-    xgb_explainer = shap.TreeExplainer(xgb_model)
-    xgb_shap_values = xgb_explainer.shap_values(shap_sample)
-
-    # SHAP for Isolation Forest (via KernelExplainer)
-    background = df.drop(columns=["Class"]).sample(100, random_state=42)
-    iso_explainer = shap.KernelExplainer(iso_model.predict, background)
-    iso_shap_values = iso_explainer.shap_values(shap_sample)
-
-    # Display side-by-side
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("<h5 style='color:green;'>XGBoost</h5>", unsafe_allow_html=True)
-        shap.plots._waterfall.waterfall_legacy(
-            xgb_explainer.expected_value,
-            xgb_shap_values[0],
-            features=shap_sample.iloc[0],
-            feature_names=shap_sample.columns.tolist()
-        )
-        st.pyplot()
-
-    with col2:
-        st.markdown("<h5 style='color:orange;'>Isolation Forest</h5>", unsafe_allow_html=True)
-        shap.plots._waterfall.waterfall_legacy(
-            iso_explainer.expected_value[0],
-            iso_shap_values[0],
-            features=shap_sample.iloc[0],
-            feature_names=shap_sample.columns.tolist()
-        )
-        st.pyplot()
-else:
+if "sample" not in st.session_state:
     st.info("Click 'Show Random Sample' first to activate SHAP explanations.")
+else:
+    if st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Current Sample"):
+        shap_sample = st.session_state.sample.to_frame().T
 
+        # --- SHAP for XGBoost ---
+        xgb_explainer = shap.TreeExplainer(xgb_model)
+        xgb_shap_values = xgb_explainer.shap_values(shap_sample)
+
+        # --- SHAP for Isolation Forest using KernelExplainer ---
+        background = df.drop(columns=["Class"]).sample(100, random_state=42)
+        iso_explainer = shap.KernelExplainer(iso_model.predict, background)
+        iso_shap_values = iso_explainer.shap_values(shap_sample)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("<h5 style='color:green;'>XGBoost</h5>", unsafe_allow_html=True)
+            fig_xgb, ax = plt.subplots()
+            shap.plots._waterfall.waterfall_legacy(
+                xgb_explainer.expected_value,
+                xgb_shap_values[0],
+                features=shap_sample.iloc[0],
+                feature_names=shap_sample.columns.tolist(),
+                show=False
+            )
+            st.pyplot(fig_xgb)
+
+        with col2:
+            st.markdown("<h5 style='color:orange;'>Isolation Forest</h5>", unsafe_allow_html=True)
+            fig_iso, ax = plt.subplots()
+            shap.plots._waterfall.waterfall_legacy(
+                iso_explainer.expected_value,
+                iso_shap_values[0],
+                features=shap_sample.iloc[0],
+                feature_names=shap_sample.columns.tolist(),
+                show=False
+            )
+            st.pyplot(fig_iso)
 
 
 

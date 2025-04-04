@@ -1,8 +1,8 @@
 streamlit
 pandas
-numpy
+numpy>=1.26
 scikit-learn
 joblib
 matplotlib
 shap
-pycaret==3.2
+pycaret[full]==3.2

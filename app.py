@@ -100,21 +100,17 @@ styled_df = styled_df.concat(
 st.dataframe(styled_df)
 
 # ----------------- SHAP ------------------
-
-# Add SHAP section
+# ----------------- SHAP Feature Importance ------------------
 st.subheader("Feature Contribution: SHAP Explanations")
 
-# Option to trigger SHAP
-if st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Current Sample"):
-    # Reuse same random sample
+if "sample" in locals() and st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Current Sample"):
     shap_sample = sample.to_frame().T
 
-    # --- SHAP for XGBoost ---
+    # SHAP for XGBoost
     xgb_explainer = shap.TreeExplainer(xgb_model)
     xgb_shap_values = xgb_explainer.shap_values(shap_sample)
 
-    # --- SHAP for Isolation Forest ---
-    # Use KernelExplainer (slow - background sample needed)
+    # SHAP for Isolation Forest (via KernelExplainer)
     background = df.drop(columns=["Class"]).sample(100, random_state=42)
     iso_explainer = shap.KernelExplainer(iso_model.predict, background)
     iso_shap_values = iso_explainer.shap_values(shap_sample)
@@ -125,28 +121,25 @@ if st.checkbox("Show SHapley Additive exPlanations (SHAP) Explanation for Curren
     with col1:
         st.markdown("<h5 style='color:green;'>XGBoost</h5>", unsafe_allow_html=True)
         st.set_option('deprecation.showPyplotGlobalUse', False)
-        fig, ax = plt.subplots()
         shap.plots._waterfall.waterfall_legacy(
             xgb_explainer.expected_value,
             xgb_shap_values[0],
             features=shap_sample.iloc[0],
             feature_names=shap_sample.columns.tolist()
         )
-        st.pyplot(fig)
+        st.pyplot()
 
     with col2:
         st.markdown("<h5 style='color:orange;'>Isolation Forest</h5>", unsafe_allow_html=True)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        fig2, ax2 = plt.subplots()
         shap.plots._waterfall.waterfall_legacy(
             iso_explainer.expected_value[0],
             iso_shap_values[0],
             features=shap_sample.iloc[0],
             feature_names=shap_sample.columns.tolist()
         )
-        st.pyplot(fig2)
-
-
+        st.pyplot()
+else:
+    st.info("Click 'Show Random Sample' first to activate SHAP explanations.")
 
 
 

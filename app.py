@@ -132,7 +132,7 @@ st.markdown("""
 - The value next to each feature (e.g., `+1.5`, `-0.4`) is the **SHAP value** — how much that feature influenced the result.
 - Red and blue bars represent the **direction and magnitude** of feature impact for each model.
 
-#### 🧠 Why SHAP is Important:
+####  Why SHAP is Important:
 - Helps you **interpret the decision logic** behind each prediction.
 - Adds **transparency** to complex ML models (like XGBoost or Isolation Forest).
 - Useful for **audits, debugging, and building user trust** in ML predictions.

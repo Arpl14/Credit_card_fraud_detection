@@ -25,7 +25,7 @@ iso_model, xgb_model = load_models()
 
 # ----------------- Title & Description ------------------
 st.title("Credit Card Fraud Detection")
-st.markdown("### _by Arpita Lonakadi_")  
+st.markdown("<h6 style='text-align: right;'>by Arpita Lonakadi</h6>", unsafe_allow_html=True)
 st.markdown("""
 ### Project Overview
 This app predicts the likelihood of fraudulent transactions using two models:

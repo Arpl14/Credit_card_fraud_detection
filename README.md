@@ -70,11 +70,11 @@ I explore **state-of-the-art machine learning techniques** for fraud detection �
 
 #### 🔹 Unsupervised Models
 
-- ✅ **Isolation Forest**:
+- **Isolation Forest**:
   - Trained on `x_train`, predicts anomalies without labels
   - Used as baseline model
 
-- ✅ **One-Class SVM**:
+- **One-Class SVM**:
   - More sensitive to kernel/nu/gamma tuning
   - Not much better than Isolation Forest and very high processing time thus not included in UI
 

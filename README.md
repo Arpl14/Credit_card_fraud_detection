@@ -1,6 +1,7 @@
 # 💳 Credit Card Fraud Detection App
 
-A Streamlit-based Ib app to explore and understand **fraudulent credit card transactions** using both **unsupervised anomaly detection** and **supervised AutoML classification** — poIred by interpretable ML techniques like **SHAP**.
+A web app to explore and understand **fraudulent credit card transactions** using both **unsupervised anomaly detection** and **supervised AutoML classification** — poIred by interpretable ML techniques like **SHAP**.
+(https://creditcardfrauddetection-pbmxavdkqko5shkrq42tie.streamlit.app/)
 
 ---
 
@@ -8,7 +9,7 @@ A Streamlit-based Ib app to explore and understand **fraudulent credit card tran
 
 Credit card fraud is a rising concern in financial systems, often involving small undetected amounts that accumulate into major losses. The goal of this project is to build and compare ML models to effectively detect such frauds.
 
-I explore **state-of-the-art machine learning techniques** for fraud detection — starting from **unsupervised methods** like **Isolation Forest** and **One-Class SVM**, to **supervised AutoML pipelines** using **PyCaret**. Ultimately, the most performant models Ire integrated into a **Streamlit dashboard** for interactive prediction, model explainability (SHAP), and evaluation.
+I explored **state-of-the-art machine learning techniques** for fraud detection — starting from **unsupervised methods** like **Isolation Forest** and **One-Class SVM**, to **supervised AutoML pipelines** using **PyCaret**. Ultimately, the most performant models were integrated into a **Streamlit dashboard** for interactive prediction, model explainability (SHAP), and evaluation.
 
 ---
 
@@ -18,7 +19,7 @@ I explore **state-of-the-art machine learning techniques** for fraud detection �
 - Compared **unsupervised vs. supervised learning** for fraud detection.
 - Used **AutoML (PyCaret)** to streamline model selection and tuning.
 - Incorporated **explainability with SHAP** to break down prediction logic.
-- Created a fully **interactive frontend (Streamlit)** for experimentation.
+- Created a fully **interactive frontend** for experimentation.
 - Used metrics beyond confusion matrix: **Recall**, **MCC**, **Kappa**, and **AUC**.
 
 ---

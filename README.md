@@ -1,5 +1,8 @@
 # 💳 Credit Card Fraud Detection App
 
+![credit_fraud](https://github.com/user-attachments/assets/846af89b-7fe0-4d4c-833b-f751a84fb377)
+
+
 A web app to explore and understand **fraudulent credit card transactions** using both **unsupervised anomaly detection** and **supervised AutoML classification** — poIred by interpretable ML techniques like **SHAP**.
 (https://creditcardfrauddetection-pbmxavdkqko5shkrq42tie.streamlit.app/)
 
